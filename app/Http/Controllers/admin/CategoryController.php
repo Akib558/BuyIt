@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Category;
 // use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
@@ -31,9 +32,22 @@ class CategoryController extends Controller
 
 
         if ($validator->passes()) {
-        } else {
+            $category = new Category();
+            $category->name = $request->name;
+            $category->slug = $request->slug;
+            $category->status = $request->status;
+            $category->save();
+
+
+            $request->session()->flash('success', 'Category Successfully Added');
+
             return response()->json([
                 'status' => true,
+                'message' => "Category Successfully Created"
+            ]);
+        } else {
+            return response()->json([
+                'status' => false,
                 'errors' => $validator->errors()
             ]);
         }
