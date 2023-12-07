@@ -7,14 +7,29 @@ use App\Models\Category;
 // use Dotenv\Validator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Session;
+
 
 // use App\Http\Controllers\admin\Validator;
 // use Dotenv\Validator as DotenvValidator;
 
 class CategoryController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
+
+        $categories = Category::latest();
+        if (!empty($request->get('keyword'))) {
+            $categories = $categories->where('name', 'like', '%' . $request->get('keyword') . '%');
+        }
+
+
+        $categories = $categories->paginate(10);
+
+        // dd($categories);
+        // $data['categories'] = $categories;
+
+        return view('admin.category.list', compact('categories'));
     }
 
     public function create()
@@ -38,8 +53,9 @@ class CategoryController extends Controller
             $category->status = $request->status;
             $category->save();
 
+            Session::flash('success', 'Category Successfully Added');
 
-            $request->session()->flash('success', 'Category Successfully Added');
+            // $request->session()->flash('success', 'Category Successfully Added');
 
             return response()->json([
                 'status' => true,
